@@ -78,6 +78,7 @@ export default function Calendar() {
               );
             });
           })()}
+        <View style={[styles.space]}></View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -112,5 +113,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     paddingVertical: 12,
     paddingHorizontal: 16,
+  },
+  space: {
+    height: 100,
   },
 });
