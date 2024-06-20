@@ -6,11 +6,20 @@ import { ClockIcon } from "react-native-heroicons/outline";
 type CardProps = {
   actions: Action[];
   customer: Customer;
-  status: string;
 };
 
 const MonthItems: React.FC<CardProps> = (props) => {
-  const { actions, customer, status } = props;
+  const { actions, customer } = props;
+
+  actions.sort((a, b) => {
+    if (a.scheduledDate && b.scheduledDate) {
+      return (
+        new Date(a.scheduledDate).getTime() -
+        new Date(b.scheduledDate).getTime()
+      );
+    }
+    return 0;
+  });
 
   function getDayAbbreviation(dateStr: string): string {
     const dayNames = [
@@ -24,7 +33,7 @@ const MonthItems: React.FC<CardProps> = (props) => {
     ];
 
     const dateObj = new Date(dateStr);
-    const dayIndex = dateObj.getDay(); // getDay() returns 0-based day index
+    const dayIndex = dateObj.getDay();
     const dayName = dayNames[dayIndex];
 
     return dayName.slice(0, 3).toUpperCase();
@@ -32,7 +41,7 @@ const MonthItems: React.FC<CardProps> = (props) => {
 
   return (
     <View>
-      {actions.map((item, index) => (
+      {actions.map((item) => (
         <View style={[styles.rowContainer]}>
           {item.status === "Unscheduled" && (
             <View style={[styles.dateContainer]}>
@@ -67,8 +76,12 @@ const MonthItems: React.FC<CardProps> = (props) => {
             ]}
           >
             <Text style={[styles.title]}>{item.name}</Text>
-            <Text style={[styles.lightText]}>{item.vendor?.vendorName}</Text>
-            <Text style={[styles.phoneText]}>{item.vendor?.phoneNumber}</Text>
+            {item.vendor?.vendorName && (
+              <Text style={[styles.lightText]}>{item.vendor?.vendorName}</Text>
+            )}
+            {item.vendor?.phoneNumber && (
+              <Text style={[styles.phoneText]}>{item.vendor?.phoneNumber}</Text>
+            )}
             <View style={[styles.addressContainer]}>
               <MapPinIcon color={"#fff"} size={16} />
               <Text style={[styles.lightText]}>{customer.street}</Text>
@@ -91,7 +104,7 @@ const styles = StyleSheet.create({
     paddingBottom: 14,
     paddingHorizontal: 16,
     marginBottom: 5,
-    width: "100%",
+    flex: 1,
   },
   title: {
     fontSize: 16,
@@ -107,12 +120,12 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 12,
     fontWeight: "bold",
-    marginBottom: 10,
   },
   addressContainer: {
     flexDirection: "row",
     alignItems: "center",
     gap: 2,
+    marginTop: 10,
   },
   rowContainer: {
     flexDirection: "row",
