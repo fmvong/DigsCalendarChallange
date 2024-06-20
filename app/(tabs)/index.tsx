@@ -13,6 +13,12 @@ export default function Calendar() {
     try {
       var result = await CardsService.getCards();
       if (result != null) {
+        result.calendar.sort((a, b) => {
+          if (a.year === b.year) {
+            return a.month - b.month;
+          }
+          return a.year - b.year;
+        });
         setPaternsList(result);
       }
     } catch (error) {
@@ -48,36 +54,25 @@ export default function Calendar() {
       <Text style={[styles.title]}>Calendar</Text>
       <ScrollView>
         {paternsList &&
-          (() => {
-            const allMonths = Array.from({ length: 12 }, (_, i) => i + 1);
-            return allMonths.map((monthNumber) => {
-              const calendarItem = paternsList.calendar.find(
-                (item) => item.month === monthNumber
-              );
-              return (
-                <React.Fragment key={monthNumber}>
-                  <Text style={[styles.dateTitle]}>
-                    {getMonthName(monthNumber)}{" "}
-                    {calendarItem
-                      ? calendarItem.year
-                      : new Date().getFullYear()}
+          paternsList.calendar.map((item) => (
+            <View>
+              <Text style={[styles.dateTitle]}>
+                {getMonthName(item.month)} {item.year}
+              </Text>
+              {item.actions.length > 0 ? (
+                <MonthItems
+                  actions={item.actions}
+                  customer={paternsList.customer}
+                />
+              ) : (
+                <View style={[styles.noDataContainer]}>
+                  <Text style={[styles.noDataText]}>
+                    No Maintenance Scheduled
                   </Text>
-                  {calendarItem ? (
-                    <MonthItems
-                      actions={calendarItem.actions}
-                      customer={paternsList.customer}
-                    />
-                  ) : (
-                    <View style={[styles.noDataContainer]}>
-                      <Text style={[styles.noDataText]}>
-                        No Maintenance Scheduled
-                      </Text>
-                    </View>
-                  )}
-                </React.Fragment>
-              );
-            });
-          })()}
+                </View>
+              )}
+            </View>
+          ))}
         <View style={[styles.space]}></View>
       </ScrollView>
     </SafeAreaView>
